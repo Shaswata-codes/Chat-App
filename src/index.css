@@ -6,3 +6,14 @@
   box-sizing : border-box;
   font-family: Poppins;
 }
+::-webkit-scrollbar{
+  display: none;
+}
+img.dot{
+  width: 15px !important;
+}
+.msgImg{
+  max-width: 230px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+}
