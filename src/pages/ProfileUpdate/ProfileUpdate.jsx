@@ -1,119 +1,187 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./profileupdate.css";
 import assets from "../../assets/assets";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../config/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
 
 const ProfileUpdate = () => {
-    const  navigate = useNavigate();
-    const [image, setImage] = useState(null);
-    const [uploadedUrl, setUploadedUrl] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const[name, setName] = useState("");
-    const[bio, setBio] = useState("");
-    const[uid, setUid] = useState("");
-    const [prevImage, setPrevImage] = useState("");
+  const navigate = useNavigate();
+  const [image, setImage] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [uid, setUid] = useState("");
+  const [prevImage, setPrevImage] = useState("");
+  const {setUserData} = useContext(AppContext)
 
-    useEffect(()=>{
-        onAuthStateChanged(auth, async(user)=>{
-            if(user){
-                setUid(user.uid)
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                if(docSnap.data.name){
-                    setName(docSnap.data.name)
-                }
-                if(docSnap.data.bio){
-                    setName(docSnap.data.bio)
-                }
-                if(docSnap.data.avatar){
-                    setPrevImage((await docSnap).data().avatar)
-                }
-            }
-            else{
-                navigate('/')
-            }
-        })
-    },[])
+  // 🔹 Fetch existing user data
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUid(user.uid);
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
 
-    const handleImageChange = async (e) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.name) setName(data.name);
+          if (data.bio) setBio(data.bio);
+          if (data.avatar) setPrevImage(data.avatar);
+        }
+      } else {
+        navigate("/");
+      }
+    });
+  }, [navigate]);
+
+  // 🔹 Handle image upload to Cloudinary with live progress
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    setImage(file);
-
     if (!file) return;
+
+    setImage(file);
+    setLoading(true);
+    setUploadProgress(0);
 
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "starting");
-    data.append("cloud_name", "dthr9jugh");
+    data.append("upload_preset", "starting11"); // your unsigned preset
+    data.append("cloud_name", "dthr9jugh"); // your Cloudinary cloud name
 
-    setLoading(true);
     try {
-        const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dthr9jugh/image/upload",
-        {
-            method: "POST",
-            body: data,
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "https://api.cloudinary.com/v1_1/dthr9jugh/image/upload");
+
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percent);
         }
-        );
-        const json = await res.json();
-        setUploadedUrl(json.url);
-        console.log("Uploaded URL:", json.url);
-    } catch (err) {
-        console.error("Upload failed:", err);
-    } finally {
+      });
+
+      // When upload completes
+      xhr.onload = () => {
+        const json = JSON.parse(xhr.responseText);
+        if (json.secure_url) {
+          setUploadedUrl(json.secure_url);
+          console.log("Uploaded URL:", json.secure_url);
+        } else {
+          console.error("Cloudinary upload error:", json);
+        }
         setLoading(false);
+      };
+
+      xhr.onerror = () => {
+        console.error("Upload failed!");
+        setLoading(false);
+      };
+
+      xhr.send(data);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setLoading(false);
     }
-    };
+  };
 
-    const handleSubmit = (e) => {
+  // 🔹 Handle saving profile to Firestore
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted with image URL:", uploadedUrl);
-    };
 
-    return (
+    if (!uid) {
+      alert("User not logged in.");
+      return;
+    }
+
+    try {
+      const userRef = doc(db, "users", uid);
+      await updateDoc(userRef, {
+        name,
+        bio,
+        avatar: uploadedUrl || prevImage, // keep old image if new one not uploaded
+      });
+      alert("✅ Profile updated successfully!");
+      const snap= await getDoc(userRef);
+      setUserData(snap.data());
+      navigate('/chat');
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert("❌ Failed to update profile.");
+    }
+  };
+
+  return (
     <div className="profile">
-        <div className="profileContainer">
+      <div className="profileContainer">
         <form onSubmit={handleSubmit}>
-            <h3>Profile Details</h3>
+          <h3>Profile Details</h3>
 
-            <label htmlFor="avatar">
+          <label htmlFor="avatar" className="upload-label">
             <input
-                type="file"
-                id="avatar"
-                accept=".png, .jpg, .jpeg"
-                hidden
-                onChange={handleImageChange}
+              type="file"
+              id="avatar"
+              accept=".png, .jpg, .jpeg"
+              hidden
+              onChange={handleImageChange}
             />
             <img
-                src={
+              src={
                 uploadedUrl
-                    ? uploadedUrl
-                    : image
-                    ? URL.createObjectURL(image)
-                    : assets.avatar_icon
-                }
-                alt="avatar"
+                  ? uploadedUrl
+                  : prevImage
+                  ? prevImage
+                  : assets.avatar_icon
+              }
+              alt="avatar"
+              className="avatar-preview"
             />
             {loading ? "Uploading..." : "Upload Profile Image"}
-            </label>
-            <input onChange={(e)=>setName(e.target.value)} value={name} type ="text" placeholder="Your Name" required/>
+          </label>
 
-            <textarea onChange={(e)=> setBio(e.target.bio)} value={bio} placeholder="Write profile bio" required></textarea>
+          {/* Progress Bar */}
+          {loading && (
+            <div className="progress-bar">
+              <div
+                className="progress"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+              <p>{uploadProgress}%</p>
+            </div>
+          )}
 
-            <button type="submit">Save</button>
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            type="text"
+            placeholder="Your Name"
+            required
+          />
+
+          <textarea
+            onChange={(e) => setBio(e.target.value)}
+            value={bio}
+            placeholder="Write profile bio"
+            required
+          ></textarea>
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Uploading..." : "Save"}
+          </button>
         </form>
 
         <img
-            className="profilePic"
-            src={uploadedUrl ? uploadedUrl : assets.logo_icon}
-            alt="Profile"
+          className="profilePic"
+          src={uploadedUrl || prevImage || assets.logo_icon}
+          alt="Profile"
         />
-        </div>
+      </div>
     </div>
-    );
+  );
 };
 
 export default ProfileUpdate;

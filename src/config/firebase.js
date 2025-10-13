@@ -34,7 +34,7 @@ const signUp = async (username, email, password) => {
     console.log("User doc written!");
 
     await setDoc(doc(db, "chats", user.uid), {
-        chatData: [],
+        chatsData: [],
     });
     console.log("Chats doc written!");
     } catch (error) {
