@@ -7,12 +7,10 @@ import { db } from '../../config/firebase'
 import { AppContext } from '../../context/AppContext'
 import { toast } from 'react-toastify'
 
-
-
 const LeftSideBar = () => {
 
     const navigate = useNavigate();
-    const{userData} = useContext(AppContext);
+    const { userData, chatData, chatUser, setChatUser, setMessagesId, messagesId} = useContext(AppContext);
     const [user, setUser] = useState(null);
     const [showSearch, setShowSearch] = useState(false);
 
@@ -25,8 +23,15 @@ const LeftSideBar = () => {
                 const q = query(userRef, where("username", "==", input.toLowerCase()))
                 const querySnap = await getDocs(q);
                 if(!querySnap.empty && querySnap.docs[0].data().id !== userData.id){
-                    // console.log(querySnap.docs[0].data());
-                    setUser(querySnap.docs[0].data());
+                    let userExist= false;
+                    chatData.map((user)=>{
+                        if(user.rId === querySnap.docs[0].data().id){
+                            userExist = true;
+                        }
+                    })
+                    if(!userExist){
+                        setUser(querySnap.docs[0].data());
+                    }
                 }
                 else{
                     setUser(null);
@@ -36,7 +41,7 @@ const LeftSideBar = () => {
                 setShowSearch(false);
             }
         } catch (error) {
-            
+            console.error(error);
         }
     }
 
@@ -70,19 +75,27 @@ const LeftSideBar = () => {
                 })
             })
 
+            setShowSearch(false);
+            setUser(null);
+
         } catch (error) {
             toast.error(error.message);
             console.error(error);
         }
     }
 
+    const setChat = async(item)=>{
+        setMessagesId(item.messageId);
+        setChatUser(item)
+    }
+
     return (
         <div className='ls'>
             <div className="lsTop">
                 <div className="lsNav">
-                    <img src={assets.logo} className='logo' />
+                    <img src={assets.logo} className='logo' alt="Logo" />
                     <div className="menu">
-                        <img src={assets.menu_icon} alt="" />
+                        <img src={assets.menu_icon} alt="Menu" />
                         <div className="subMenu">
                             <p onClick={()=>navigate('/profile')}>Edit Profile</p>
                             <hr />
@@ -91,29 +104,29 @@ const LeftSideBar = () => {
                     </div>
                 </div>
                 <div className="lsSearch">
-                    <img src={assets.search_icon} alt="" />
+                    <img src={assets.search_icon} alt="Search" />
                     <input onChange={inputHandler} type="text" placeholder='Search or start new chat' />
                 </div>
             </div>
             <div className="lsList">
                 {showSearch && user
-                ?<div onClick={addChat} className="friends addUser">
-                    <img src={user.avatar} alt=""/>
-                    <p>{user.name}</p>
-                </div>
-                :
-                Array(12).fill("").map((item,index)=>(
-                    <div key={index} className='friends'>
-                        <img src={assets.profile_img} alt="" />
-                        <div>
-                            <p>Shaswata Sarkar</p>
-                            <span>Hello, how are you?</span>
-                        </div>
+                    ? <div onClick={addChat} className="friends addUser">
+                        <img src={user.avatar} alt="User avatar"/>
+                        <p>{user.name}</p>
                     </div>
-                ))
+                    : chatData && chatData.map((item, index) => (
+                        <div onClick={()=>setChat(item)} key={index} className='friends'>
+                            <img src={item.userData?.avatar || assets.profile_img} alt="Profile" />
+                            <div>
+                                <p>{item.userData?.name || "Unknown User"}</p>
+                                <span>{item.lastMessage || "No messages yet"}</span>
+                            </div>
+                        </div>
+                    ))
                 }
             </div>
         </div>
     )
 }
+
 export default LeftSideBar
