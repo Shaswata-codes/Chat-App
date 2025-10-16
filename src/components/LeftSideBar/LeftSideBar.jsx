@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import './leftSideBar.css'
 import assets from '../../assets/assets'
 import { useNavigate } from 'react-router-dom'
-import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
+import { arrayUnion, collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { db } from '../../config/firebase'
 import { AppContext } from '../../context/AppContext'
 import { toast } from 'react-toastify'
@@ -84,10 +84,43 @@ const LeftSideBar = () => {
         }
     }
 
-    const setChat = async(item)=>{
-        setMessagesId(item.messageId);
-        setChatUser(item)
+    const setChat = async (item) => {
+  try {
+    setMessagesId(item.messageId);
+    setChatUser(item);
+
+    // ✅ Correctly get a single document
+    const userChatsRef = doc(db, "chats", userData.id);
+    const userChatsSnapshot = await getDoc(userChatsRef);
+
+    if (!userChatsSnapshot.exists()) {
+      toast.error("Chat data not found");
+      return;
     }
+
+    const userChatsData = userChatsSnapshot.data();
+    const chatIndex = userChatsData.chatsData.findIndex(
+      (c) => c.messageId === item.messageId
+    );
+
+    if (chatIndex === -1) {
+      toast.error("Chat not found in data");
+      return;
+    }
+
+    // ✅ Update locally then push to Firestore
+    userChatsData.chatsData[chatIndex].messageSeen = true;
+
+    await updateDoc(userChatsRef, {
+      chatsData: userChatsData.chatsData,
+    });
+
+    console.log("Chat message seen updated ✅");
+  } catch (error) {
+    console.error(error);
+    toast.error(error.message);
+  }
+};
 
     return (
         <div className='ls'>
@@ -115,7 +148,7 @@ const LeftSideBar = () => {
                         <p>{user.name}</p>
                     </div>
                     : chatData && chatData.map((item, index) => (
-                        <div onClick={()=>setChat(item)} key={index} className='friends'>
+                        <div onClick={()=>setChat(item)} key={index} className={`friends ${item.messageSeen || item.messageId ===messagesId ? "":"border"}`}>
                             <img src={item.userData?.avatar || assets.profile_img} alt="Profile" />
                             <div>
                                 <p>{item.userData?.name || "Unknown User"}</p>

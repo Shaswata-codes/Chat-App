@@ -5,6 +5,7 @@ import { AppContext } from '../../context/AppContext'
 import { arrayUnion, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '../../config/firebase'
 import { toast } from 'react-toastify'
+import upload from '../../lib/upload'
 
 const ChatBox = () => {
 
@@ -75,9 +76,67 @@ const ChatBox = () => {
         }
     }
 
-    const sendImage = async(e) =>{
+    const sendImage = async (e) => {
+  try {
+    const file = e.target.files[0];
+    if (!file) return;
 
+    const fileUrl = await upload(file);
+
+    if (fileUrl && messagesId) {
+      // 1️⃣ Add image message to Firestore
+      await updateDoc(doc(db, 'messages', messagesId), {
+        messages: arrayUnion({
+          sId: userData.id,
+          image: fileUrl,
+          createdAt: new Date()
+        })
+      });
+
+      // 2️⃣ Update chatsData for both users
+      const userIDs = [chatUser.rId, userData.id];
+
+      await Promise.all(userIDs.map(async (id) => {
+        const userChatsRef = doc(db, 'chats', id);
+        const userChatsSnapshot = await getDoc(userChatsRef);
+
+        if (userChatsSnapshot.exists()) {
+          const userChatData = userChatsSnapshot.data();
+          if (!userChatData.chatsData) userChatData.chatsData = [];
+
+          const chatIndex = userChatData.chatsData.findIndex(
+            (c) => c.messagesId === messagesId
+          );
+
+          if (chatIndex !== -1) {
+            userChatData.chatsData[chatIndex].lastMessage = "📷 Image";
+            userChatData.chatsData[chatIndex].updatedAt = Date.now();
+
+            if (id === chatUser.rId) {
+              userChatData.chatsData[chatIndex].messageSeen = false;
+            }
+          } else {
+            userChatData.chatsData.push({
+              messagesId,
+              rId: id === userData.id ? chatUser.rId : userData.id,
+              lastMessage: "📷 Image",
+              updatedAt: Date.now(),
+              messageSeen: id === chatUser.rId ? false : true
+            });
+          }
+
+          await updateDoc(userChatsRef, {
+            chatsData: userChatData.chatsData
+          });
+        }
+      }));
     }
+  } catch (error) {
+    console.error("Error sending image:", error);
+    toast.error(error.message);
+  }
+};
+
 
     // 🟢 Real-time message listener
     useEffect(() => {
@@ -131,7 +190,7 @@ const ChatBox = () => {
                     type="text"
                     placeholder="Type a message"
                 />
-                <input type="file" id="image" accept="image/png, image/jpeg" hidden />
+                <input onChange={sendImage} type="file" id="file" accept="image/png, image/jpeg" hidden />
                 <label htmlFor="file">
                     <img src={assets.gallery_icon} alt="Upload" />
                 </label>

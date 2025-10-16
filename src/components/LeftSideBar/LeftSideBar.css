@@ -102,3 +102,38 @@
 .menu:hover .subMenu{
     display: block;
 }
+.friends.border img{
+    border : 3px solid #07fff3;
+}
+.friends.border div span{
+    color : #07fff3;
+}
+/* RightSideBar.css */
+
+/* Right Side Bar welcome state */
+.rsWelcome {
+  display: flex;
+  justify-content: center;  /* center horizontally */
+  align-items: center;      /* center vertically */
+  height: 100%;             /* take full height of sidebar */
+  background-color: #f5f5f5; /* light background to match UI */
+  flex-direction: column;    /* stack items vertically if needed */
+  gap: 10px;                 /* spacing between elements */
+  padding: 20px;             /* some padding for breathing space */
+  text-align: center;        /* center text inside */
+}
+
+/* .rsWelcome button {
+  background-color: #4caf50; 
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.rsWelcome button:hover {
+  background-color: #45a049;
+} */
