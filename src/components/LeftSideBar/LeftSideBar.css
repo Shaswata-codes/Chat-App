@@ -149,7 +149,8 @@
     .ls.hidden{
         transform: translateX(-100%);
     }
-    .lsList{
+}
+    /* .lsList{
         height: 60vh;
     }
-}
+} */
