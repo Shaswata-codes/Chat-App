@@ -100,3 +100,19 @@
     text-align: center;
     font-size: 9px;
 }
+.chatWelcome{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.chatWelcome img{
+    width: 60px;
+}
+.chatWelcome p{
+    font-size: 20px;
+    font-weight: 500;
+    color : #383833
+}
