@@ -65,3 +65,29 @@
     border-radius: 20px;
     cursor: pointer;
 }
+.rsProfile h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* space between dot and name */
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.rsProfile h3 img {
+    width: 12px;       /* dot size */
+    height: 12px;
+    border-radius: 50%; /* makes it circular */
+    object-fit: cover;
+}
+
+/* Optional: hover effect on the dot */
+.rsProfile h3 img:hover {
+    transform: scale(1.2);
+    transition: transform 0.2s ease;
+}
+
+@media(max-width: 900px){
+    .rs{
+        display: none;
+    }
+}

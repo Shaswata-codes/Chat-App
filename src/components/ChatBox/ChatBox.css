@@ -116,3 +116,26 @@
     font-weight: 500;
     color : #383833
 }
+@media(max-width: 900px){
+    .chatBox{
+        width: 100%;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+    .chatInput{
+        padding: 8px 10px;
+    }
+    .chatUser p{
+        font-size: 16px;
+    }
+    .chatUser img:first-child{
+        width: 30px;
+    }
+    .msg{
+        font-size: 10px;
+        max-width: 140px;
+    }
+}

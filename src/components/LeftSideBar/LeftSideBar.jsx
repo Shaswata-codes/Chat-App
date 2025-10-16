@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 const LeftSideBar = () => {
 
     const navigate = useNavigate();
-    const { userData, chatData, chatUser, setChatUser, setMessagesId, messagesId} = useContext(AppContext);
+    const { userData, chatData, chatUser, setChatUser, setMessagesId, messagesId, chatVisible, setChatVisible} = useContext(AppContext);
     const [user, setUser] = useState(null);
     const [showSearch, setShowSearch] = useState(false);
 
@@ -114,7 +114,7 @@ const LeftSideBar = () => {
     await updateDoc(userChatsRef, {
       chatsData: userChatsData.chatsData,
     });
-
+    setChatVisible(true);
     console.log("Chat message seen updated ✅");
   } catch (error) {
     console.error(error);
@@ -123,7 +123,7 @@ const LeftSideBar = () => {
 };
 
     return (
-        <div className='ls'>
+        <div className={`ls ${chatVisible?"hidden": ""}`}>
             <div className="lsTop">
                 <div className="lsNav">
                     <img src={assets.logo} className='logo' alt="Logo" />

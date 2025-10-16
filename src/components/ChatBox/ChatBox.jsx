@@ -9,7 +9,7 @@ import upload from '../../lib/upload'
 
 const ChatBox = () => {
 
-    const { userData, messagesId, chatUser, messages, setMessages } = useContext(AppContext)
+    const { userData, messagesId, chatUser, messages, setMessages, chatVisible, setChatVisible } = useContext(AppContext)
     const [input, setInput] = useState("")
 
     const sendMessage = async () => {
@@ -155,14 +155,15 @@ const ChatBox = () => {
 
     // 🟣 UI Render
     return chatUser ? (
-        <div className='chatBox'>
+        <div className={`chatBox ${chatVisible ? "" : "hidden"}`}>
             <div className="chatUser">
                 <img src={chatUser.userData.avatar} alt="avatar" />
                 <p>
                     {chatUser.userData.name}
-                    <img className="dot" src={assets.green_dot} alt="online" />
+                    {Date.now()-chatUser.userData.lastSeen <= 70000 ? <img src={assets.green_dot} className='dot'></img> : <span className='lastSeen'>Last seen at {new Date(chatUser.userData.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                 </p>
                 <img src={assets.help_icon} className='help' alt="help" />
+                <img onClick={()=>setChatVisible(false)} src={assets.arrow_icon} className='arrow' alt=""/>
             </div>
 
             <div className="chatMsg">
@@ -198,7 +199,7 @@ const ChatBox = () => {
             </div>
         </div>
     ) : (
-        <div className='chatWelcome'>
+        <div className={`chatWelcome ${chatVisible ? "" : "hidden"}`}>
             <img src={assets.logo_icon} alt="logo" />
             <p>Chat anytime</p>
         </div>

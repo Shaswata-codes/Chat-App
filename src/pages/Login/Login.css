@@ -67,3 +67,17 @@
     cursor: pointer;
     font-weight: bold;
 }
+
+@media(max-width: 768px){
+    .login{
+        flex-direction: column;
+        justify-content: center;
+        gap : 30px
+    }
+    .login.logo{
+        width: 40vw;
+    }
+    .loginForm{
+        width: 80vw;
+    }
+}

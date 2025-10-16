@@ -16,3 +16,14 @@
     font-size: 50px;
     color: white;
 }
+@media(max-width: 900px){
+    .chatContainer{
+        display: flex;
+    }
+    .loading{
+        font-size: 30px;
+    }
+    .chatContainer > :nth-child(3){
+        display: none;
+    }
+}
