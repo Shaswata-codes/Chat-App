@@ -1,156 +1,211 @@
-.ls{
-    background: #001030;
-    color: white;
-    height: 75vh;
-}
-.lsTop{
-    padding: 20px;
-}
-.lsNav{
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.lsNav .logo{
-    max-width: 140px;
-}
-.lsNav .menu img{
-    max-height: 20px;
-    opacity: 0.6;
-    cursor: pointer;
-}
-.lsSearch{
-    background-color: #002670;
-    display: flex;
-    align-items: center;
-    gap : 10px;
-    padding : 10px 20px;
-    margin-top: 20px;
-}
-.lsSearch img{
-    width : 16px;
-}
-.lsSearch input{
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    font-size: 12px ;
-}
-.lsSearch input::placeholder{
-    color: white;
-    opacity: 0.6;
-}
-.lsList{
-    display:flex;
-    flex-direction: column;
-    height: 70%;
-    overflow-y: scroll;
-}
-.friends img{
-    width:35px;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-}
-.friends{
-    display: flex;
-    align-items: center;
-    gap :10px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size :13px;
-}
-.friends div{
-    display: flex;
-    flex-direction: column;
-}
-.friends span{
-    color: #9f9f9f;
-    font-size: 11px;
-}
-.friends:hover{
-    background-color: #077EFF;
-}
-.friends:hover span{
-    color: white;
-}
-.lsNav .menu{
-    position: relative;
-    /* padding: 10px 0px; */
-}
-.menu .subMenu{
-    position: absolute;
-    top:100%;
-    right: 0;
-    width: 130px;
-    padding: 20px;
-    border-radius: 5px;
-    background-color: aliceblue;
-    color: black;
-    display: none;
-}
-.subMenu hr{
-    border: none;
-    height: 1px;
-    background: #a4a4a4;
-    margin : 8px 0px;
-}
-.subMenu p{
-    cursor: pointer;
-    font-size: 14px;
-}
-.menu:hover .subMenu{
-    display: block;
-}
-.friends.border img{
-    border : 3px solid #07fff3;
-}
-.friends.border div span{
-    color : #07fff3;
-}
-/* RightSideBar.css */
-
-/* Right Side Bar welcome state */
-.rsWelcome {
-  display: flex;
-  justify-content: center;  /* center horizontally */
-  align-items: center;      /* center vertically */
-  height: 100%;             /* take full height of sidebar */
-  background-color: #f5f5f5; /* light background to match UI */
-  flex-direction: column;    /* stack items vertically if needed */
-  gap: 10px;                 /* spacing between elements */
-  padding: 20px;             /* some padding for breathing space */
-  text-align: center;        /* center text inside */
-}
-
-.rsWelcome button {
-  background-color: #4caf50; 
+/* ===== Left Sidebar Modern Style ===== */
+.ls {
+  background: linear-gradient(160deg, #5a00b0, #8c2bff);
   color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  height: 75vh;
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
 }
 
-.rsWelcome button:hover {
-  background-color: #45a049;
+/* ===== Top Navigation ===== */
+.lsTop {
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
-@media(max-width: 900px){
-    .ls{
-        position: absolute;
-        z-index: 10;
-        width: 100%;
-        height: 100vh;
-        max-width: 400px;
-        transition: 0.3s ease-in-out;
-    }
-    .ls.hidden{
-        transform: translateX(-100%);
-    }
+
+.lsNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-    /* .lsList{
-        height: 60vh;
-    }
-} */
+
+.lsNav .logo {
+  max-width: 130px;
+  filter: brightness(1.1);
+}
+
+.lsNav .menu img {
+  max-height: 22px;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.lsNav .menu img:hover {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+
+/* ===== Search Bar ===== */
+.lsSearch {
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-top: 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.lsSearch img {
+  width: 16px;
+  opacity: 0.8;
+}
+
+.lsSearch input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 13px;
+  flex: 1;
+}
+
+.lsSearch input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== Chat List ===== */
+.lsList {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.lsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lsList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* ===== Friend Items ===== */
+.friends {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.25s ease;
+  border-left: 3px solid transparent;
+}
+
+.friends img {
+  width: 38px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  object-fit: cover;
+}
+
+.friends div {
+  display: flex;
+  flex-direction: column;
+}
+
+.friends p {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.friends span {
+  color: #c9c9c9;
+  font-size: 11px;
+}
+
+/* Hover + Active Styles */
+.friends:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-left: 3px solid #07fff3;
+  transform: scale(1.01);
+}
+
+.friends:hover span {
+  color: #ffffff;
+}
+
+/* Unread border indicator */
+.friends.border img {
+  border: 2px solid #07fff3;
+}
+
+.friends.border div span {
+  color: #07fff3;
+}
+
+/* ===== Submenu Styling ===== */
+.lsNav .menu {
+  position: relative;
+}
+
+.menu .subMenu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  width: 150px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  color: black;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.menu:hover .subMenu {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+.subMenu hr {
+  border: none;
+  height: 1px;
+  background: #dcdcdc;
+  margin: 8px 0;
+}
+
+.subMenu p {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 0;
+  transition: 0.2s;
+}
+
+.subMenu p:hover {
+  color: #007bff;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .ls {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    height: 100vh;
+    max-width: 400px;
+    transition: 0.3s ease-in-out;
+    border-radius: 0;
+  }
+
+  .ls.hidden {
+    transform: translateX(-100%);
+  }
+}

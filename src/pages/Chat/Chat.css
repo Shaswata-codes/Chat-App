@@ -1,6 +1,6 @@
 .chat{
     min-height: 100vh;
-    background-color: #596AFF;
+    background-color:pink;
     display: grid;
     place-items: center;
 }

@@ -1,93 +1,192 @@
-.rs{
-    color: white;
-    background: #001030;
-    position: relative;
-    height: 75vh;
-    overflow-y: scroll;
+/* ===== Right Sidebar Modern Glass Theme ===== */
+.rs {
+  background: linear-gradient(160deg, #3b007a, #1e0047);
+  color: #fff;
+  position: relative;
+  height: 75vh;
+  border-radius: 0 20px 20px 0;
+  overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 70px;
 }
-.rsProfile{
-    padding-top: 39px;
-    text-align: center;
-    max-width: 70%;
-    margin: auto;
+
+/* ===== Profile Section ===== */
+.rsProfile {
+  text-align: center;
+  padding: 30px 20px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  margin: 20px auto;
+  width: 85%;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  transition: 0.3s ease;
 }
-.rsProfile img{
-    width: 110%;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
+
+.rsProfile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
 }
-.rsProfile h3{
-    font-size: 18px;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap : 5px;
-    margin: 5px 0px;
+
+.rsProfile img {
+  width: 110px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
-.rsProfile p{
-    font-size: 10px;
-    opacity: 80%;
-    font-weight: 300;
-}
-.rs hr{
-    border-color: #ffffff50;
-    margin : 15px 0px;
-}
-.rsMedia{
-    padding: 0px 20px;
-    font-size: 13px;
-}
-.rsMedia div{
-    max-height: 180px;
-    overflow-y: scroll;
-    display:grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap :5px;
-    margin-top: 8px;
-}
-.rsMedia div img{
-    width: 60px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.rs button{
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #077eff;
-    color: aliceblue;
-    border: none;
-    font-size: 12px;
-    font-weight: 300;
-    padding: 10px 65px;
-    border-radius: 20px;
-    cursor: pointer;
-}
+
 .rsProfile h3 {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* space between dot and name */
-    font-size: 18px;
-    font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 10px 0 4px;
 }
 
 .rsProfile h3 img {
-    width: 12px;       /* dot size */
-    height: 12px;
-    border-radius: 50%; /* makes it circular */
-    object-fit: cover;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
 }
 
-/* Optional: hover effect on the dot */
-.rsProfile h3 img:hover {
-    transform: scale(1.2);
-    transition: transform 0.2s ease;
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-@media(max-width: 900px){
-    .rs{
-        display: none;
-    }
+.rsProfile p {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* ===== Divider ===== */
+.rs hr {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  width: 80%;
+  margin: 15px auto;
+}
+
+/* ===== Media Section ===== */
+.rsMedia {
+  width: 85%;
+  font-size: 13px;
+  color: #fff;
+  text-align: left;
+}
+
+.rsMedia > p {
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.rsMedia div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  overflow: visible;
+}
+
+.rsMedia div img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  object-fit: cover;
+  transition: 0.25s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.rsMedia div img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* No media message */
+.rsMedia div p {
+  font-size: 12px;
+  color: #ccc;
+  text-align: center;
+  grid-column: span 3;
+}
+
+/* ===== Logout Button ===== */
+.rs button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+  color: white;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 60px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 150, 100, 0.4);
+}
+
+.rs button:hover {
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 5px 18px rgba(255, 150, 100, 0.6);
+}
+
+/* ===== Welcome State ===== */
+.rsWelcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: linear-gradient(160deg, #3b007a, #1e0047);
+  border-radius: 0 20px 20px 0;
+}
+
+.rsWelcome button {
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+  color: #fff;
+  border: none;
+  padding: 10px 60px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+.rsWelcome button:hover {
+  transform: scale(1.05);
+}
+
+/* ===== Scrollbar Customization ===== */
+.rs::-webkit-scrollbar {
+  width: 6px;
+}
+.rs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+}
+.rs::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .rs {
+    display: none;
+  }
 }

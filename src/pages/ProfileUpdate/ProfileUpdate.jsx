@@ -6,6 +6,7 @@ import { auth, db } from "../../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import upload from "../../lib/upload"; // ✅ Reuse centralized Cloudinary uploader
 
 const ProfileUpdate = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const ProfileUpdate = () => {
   const [bio, setBio] = useState("");
   const [uid, setUid] = useState("");
   const [prevImage, setPrevImage] = useState("");
-  const {setUserData} = useContext(AppContext)
+  const { setUserData } = useContext(AppContext);
 
   // 🔹 Fetch existing user data
   useEffect(() => {
@@ -29,9 +30,9 @@ const ProfileUpdate = () => {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data.name) setName(data.name);
-          if (data.bio) setBio(data.bio);
-          if (data.avatar) setPrevImage(data.avatar);
+          setName(data.name || "");
+          setBio(data.bio || "");
+          setPrevImage(data.avatar || "");
         }
       } else {
         navigate("/");
@@ -39,25 +40,24 @@ const ProfileUpdate = () => {
     });
   }, [navigate]);
 
-  // 🔹 Handle image upload to Cloudinary with live progress
+  // 🔹 Handle avatar selection + upload to Cloudinary (with progress)
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setImage(file);
     setLoading(true);
     setUploadProgress(0);
 
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "starting11"); // your unsigned preset
-    data.append("cloud_name", "dthr9jugh"); // your Cloudinary cloud name
-
     try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "https://api.cloudinary.com/v1_1/dthr9jugh/image/upload");
+      // ✅ Manual progress tracking using XMLHttpRequest for Cloudinary
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "chat-app"); // replace with your Cloudinary preset
+      formData.append("cloud_name", "dthr9jugh"); // replace with your Cloudinary name
 
-      // Track upload progress
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/dthr9jugh/image/upload`);
+
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
@@ -65,31 +65,30 @@ const ProfileUpdate = () => {
         }
       });
 
-      // When upload completes
       xhr.onload = () => {
-        const json = JSON.parse(xhr.responseText);
-        if (json.secure_url) {
-          setUploadedUrl(json.secure_url);
-          console.log("Uploaded URL:", json.secure_url);
+        const response = JSON.parse(xhr.responseText);
+        if (response.secure_url) {
+          setUploadedUrl(response.secure_url);
+          console.log("✅ Uploaded Avatar URL:", response.secure_url);
         } else {
-          console.error("Cloudinary upload error:", json);
+          console.error("❌ Cloudinary upload error:", response);
         }
         setLoading(false);
       };
 
       xhr.onerror = () => {
-        console.error("Upload failed!");
+        console.error("❌ Upload failed!");
         setLoading(false);
       };
 
-      xhr.send(data);
+      xhr.send(formData);
     } catch (err) {
       console.error("Upload failed:", err);
       setLoading(false);
     }
   };
 
-  // 🔹 Handle saving profile to Firestore
+  // 🔹 Handle saving profile info to Firestore
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -99,16 +98,21 @@ const ProfileUpdate = () => {
     }
 
     try {
+      const avatarUrl = uploadedUrl || prevImage;
       const userRef = doc(db, "users", uid);
+
       await updateDoc(userRef, {
         name,
         bio,
-        avatar: uploadedUrl || prevImage, // keep old image if new one not uploaded
+        avatar: avatarUrl,
       });
+
+      // Update global context
+      const updatedSnap = await getDoc(userRef);
+      setUserData(updatedSnap.data());
+
       alert("✅ Profile updated successfully!");
-      const snap= await getDoc(userRef);
-      setUserData(snap.data());
-      navigate('/chat');
+      navigate("/chat");
     } catch (err) {
       console.error("Error updating profile:", err);
       alert("❌ Failed to update profile.");
@@ -121,11 +125,12 @@ const ProfileUpdate = () => {
         <form onSubmit={handleSubmit}>
           <h3>Profile Details</h3>
 
+          {/* Avatar Upload */}
           <label htmlFor="avatar" className="upload-label">
             <input
               type="file"
               id="avatar"
-              accept=".png, .jpg, .jpeg"
+              accept="image/png, image/jpeg"
               hidden
               onChange={handleImageChange}
             />
@@ -143,7 +148,7 @@ const ProfileUpdate = () => {
             {loading ? "Uploading..." : "Upload Profile Image"}
           </label>
 
-          {/* Progress Bar */}
+          {/* Upload Progress Bar */}
           {loading && (
             <div className="progress-bar">
               <div
@@ -154,18 +159,19 @@ const ProfileUpdate = () => {
             </div>
           )}
 
+          {/* User Info */}
           <input
-            onChange={(e) => setName(e.target.value)}
-            value={name}
             type="text"
             placeholder="Your Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
 
           <textarea
-            onChange={(e) => setBio(e.target.value)}
-            value={bio}
             placeholder="Write profile bio"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
             required
           ></textarea>
 

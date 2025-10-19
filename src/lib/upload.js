@@ -1,38 +1,27 @@
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+const upload = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "starting11"); // replace with your preset
+    formData.append("cloud_name", "dthr9jugh"); // replace with your cloud name
 
-const upload = (file) => {
-  return new Promise((resolve, reject) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, `images/${Date.now()}_${file.name}`);
-
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        reject(error); // ✅ reject on error
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            resolve(downloadURL); // ✅ resolve when done
-          })
-          .catch(reject);
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/your_cloud_name/image/upload`,
+      {
+        method: "POST",
+        body: formData,
       }
     );
-  });
+
+    if (!res.ok) throw new Error("Cloudinary upload failed");
+
+    const data = await res.json();
+    return data.secure_url; // ✅ URL of uploaded image
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    throw error;
+  }
 };
 
 export default upload;
+
