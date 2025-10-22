@@ -6,21 +6,22 @@ import { arrayUnion, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firesto
 import { db } from '../../config/firebase';
 import { toast } from 'react-toastify';
 
+const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
+
 const ChatBox = () => {
   const { userData, messagesId, chatUser, messages, setMessages, chatVisible, setChatVisible } =
     useContext(AppContext);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
 
-  // 🔹 Upload file to Cloudinary
   const uploadToCloudinary = async (file) => {
     const data = new FormData();
     data.append('file', file);
-    data.append('upload_preset', 'starting11'); // your unsigned preset
-    data.append('cloud_name', 'dthr9jugh'); // your Cloudinary name
+    data.append('upload_preset', UPLOAD_PRESET);
 
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/dthr9jugh/image/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
         method: 'POST',
         body: data,
       });
@@ -34,10 +35,8 @@ const ChatBox = () => {
     }
   };
 
-  // 🔹 Send Text Message
   const sendMessage = async () => {
     if (!input.trim() || !messagesId || sending) return;
-
     setSending(true);
     try {
       await updateDoc(doc(db, 'messages', messagesId), {
@@ -47,7 +46,6 @@ const ChatBox = () => {
           createdAt: new Date(),
         }),
       });
-
       await updateChatMeta(input.slice(0, 30));
       setInput('');
     } catch (error) {
@@ -58,17 +56,13 @@ const ChatBox = () => {
     }
   };
 
-  // 🔹 Send Image Message
   const sendImage = async (e) => {
     const file = e.target.files[0];
     if (!file || !messagesId || sending) return;
-
     setSending(true);
     try {
       const fileUrl = await uploadToCloudinary(file);
       if (!fileUrl) throw new Error('Image upload failed');
-
-      // Add image message to Firestore
       await updateDoc(doc(db, 'messages', messagesId), {
         messages: arrayUnion({
           sId: userData.id,
@@ -76,7 +70,6 @@ const ChatBox = () => {
           createdAt: new Date(),
         }),
       });
-
       await updateChatMeta('📷 Image');
     } catch (error) {
       console.error('Error sending image:', error);
@@ -86,23 +79,18 @@ const ChatBox = () => {
     }
   };
 
-  // 🔹 Update Chat Metadata for both users
   const updateChatMeta = async (lastMessageText) => {
     const userIDs = [chatUser.rId, userData.id];
-
     await Promise.all(
       userIDs.map(async (id) => {
         const userChatsRef = doc(db, 'chats', id);
         const userChatsSnapshot = await getDoc(userChatsRef);
-
         if (userChatsSnapshot.exists()) {
           const userChatData = userChatsSnapshot.data();
           if (!userChatData.chatsData) userChatData.chatsData = [];
-
           const chatIndex = userChatData.chatsData.findIndex(
             (c) => c.messagesId === messagesId
           );
-
           if (chatIndex !== -1) {
             userChatData.chatsData[chatIndex].lastMessage = lastMessageText;
             userChatData.chatsData[chatIndex].updatedAt = Date.now();
@@ -116,17 +104,14 @@ const ChatBox = () => {
               messageSeen: id === chatUser.rId ? false : true,
             });
           }
-
           await updateDoc(userChatsRef, { chatsData: userChatData.chatsData });
         }
       })
     );
   };
 
-  // 🔹 Real-time listener
   useEffect(() => {
     if (!messagesId) return;
-
     const unSub = onSnapshot(doc(db, 'messages', messagesId), (res) => {
       const data = res.data();
       if (data?.messages) {
@@ -134,11 +119,9 @@ const ChatBox = () => {
         setMessages(reversed);
       }
     });
-
     return () => unSub();
   }, [messagesId, setMessages]);
 
-  // 🟣 UI
   return chatUser ? (
     <div className={`chatBox ${chatVisible ? '' : 'hidden'}`}>
       <div className="chatUser">
@@ -170,21 +153,15 @@ const ChatBox = () => {
         {messages.map((msg, idx) => (
           <div key={idx} className={msg.sId === userData.id ? 'sMsg' : 'rMsg'}>
             {msg.text && <p className="msg">{msg.text}</p>}
-            {msg.image && (
-              <img src={msg.image} alt="sent" className="msgImage" />
-            )}
+            {msg.image && <img src={msg.image} alt="sent" className="msgImage" />}
             <div>
               <img
-                src={
-                  msg.sId === userData.id ? userData.avatar : chatUser.userData.avatar
-                }
+                src={msg.sId === userData.id ? userData.avatar : chatUser.userData.avatar}
                 alt="profile"
               />
               <p>
                 {new Date(
-                  msg.createdAt?.seconds
-                    ? msg.createdAt.seconds * 1000
-                    : msg.createdAt
+                  msg.createdAt?.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt
                 ).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
