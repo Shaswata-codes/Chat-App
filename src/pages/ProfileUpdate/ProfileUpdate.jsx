@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import "./Profileupdate.css";
+import "./ProfileUpdate.css";
 import assets from "../../assets/assets";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../config/firebase";
