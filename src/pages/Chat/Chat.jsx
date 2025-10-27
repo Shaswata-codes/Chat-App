@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import './chat.css'
+import './Chat.css'
 import LeftSideBar from '../../components/LeftSideBar/LeftSideBar'
 import ChatBox from '../../components/ChatBox/ChatBox'
 import RightSideBar from '../../components/RightSideBar/RightSideBar'
