@@ -39,7 +39,7 @@
 // export default RightSideBar
 
 import React, { useContext } from 'react'
-import './rightSideBar.css'
+import './RightSideBar.css'
 import assets from '../../assets/assets'
 import { logout } from '../../config/firebase'
 import { AppContext } from '../../context/AppContext'
